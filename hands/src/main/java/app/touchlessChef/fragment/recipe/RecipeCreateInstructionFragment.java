@@ -3,7 +3,6 @@ package app.touchlessChef.fragment.recipe;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +21,6 @@ import java.util.List;
 import app.touchlessChef.R;
 import app.touchlessChef.adapter.recipe.InstructionAdapter;
 import app.touchlessChef.model.Instruction;
-import app.touchlessChef.model.Recipe;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -30,7 +28,7 @@ import app.touchlessChef.model.Recipe;
  * create an instance of this fragment.
  */
 public class RecipeCreateInstructionFragment extends NavigableFragment {
-    private InstructionListener myListener;
+    private InstructionListener mListener;
     private List<Instruction> instructionList;
     private InstructionAdapter instructionAdapter;
 
@@ -40,16 +38,8 @@ public class RecipeCreateInstructionFragment extends NavigableFragment {
 
     public RecipeCreateInstructionFragment() {}
 
-    public static RecipeCreateInstructionFragment newInstance(Recipe recipe) {
-        RecipeCreateInstructionFragment fragment = new RecipeCreateInstructionFragment();
-
-        if (recipe != null) {
-            Bundle args = new Bundle();
-            args.putParcelableArrayList("instruction", (ArrayList<Instruction>) recipe.getInstructions());
-            fragment.setArguments(args);
-        }
-
-        return fragment;
+    public static RecipeCreateInstructionFragment newInstance() {
+        return new RecipeCreateInstructionFragment();
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -57,12 +47,7 @@ public class RecipeCreateInstructionFragment extends NavigableFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_recipe_create_instruction, container, false);
-
-        Bundle args = getArguments();
-        if (args != null)
-            instructionList = args.getParcelableArrayList("instruction");
-        if (instructionList == null)
-            instructionList = new ArrayList<>();
+        instructionList = new ArrayList<>();
 
         instructionRecyclerView = view.findViewById(R.id.recyclerView);
         emptyView = view.findViewById(R.id.empty_view);
@@ -82,14 +67,10 @@ public class RecipeCreateInstructionFragment extends NavigableFragment {
         instructionRecyclerView.setAdapter(instructionAdapter);
 
         addButton.setOnClickListener(v -> {
-            Log.i("DAO", "Add button pressed.");
             String newInstruction = instructionField.getText().toString();
-            Log.i("DAO", "New instruction: " + newInstruction);
             if (!newInstruction.isEmpty()) {
-                Log.i("DAO", "Instructions list BEFORE: " + instructionList);
                 instructionField.setText("");
                 instructionList.add(new Instruction(newInstruction));
-                Log.i("DAO", "Instructions list AFTER: " + instructionList);
                 toggleEmptyView();
                 instructionAdapter.notifyDataSetChanged();
             }
@@ -111,7 +92,7 @@ public class RecipeCreateInstructionFragment extends NavigableFragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
-            myListener = (InstructionListener) context;
+            mListener = (InstructionListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context + " must implement InstructionListener");
         }
@@ -120,14 +101,13 @@ public class RecipeCreateInstructionFragment extends NavigableFragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        myListener = null;
+        mListener = null;
     }
 
     @Override
     public void onNext() {
-        if (myListener != null) {
-            Log.i("DAO", "Steps finished: " + instructionList);
-            myListener.onStepsFinished(instructionList);
+        if (mListener != null) {
+            mListener.onStepsFinished(instructionList);
         }
     }
 

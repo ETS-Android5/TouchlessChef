@@ -1,4 +1,4 @@
-package app.touchlessChef.fragment.home;
+package app.touchlessChef.fragment.cuisine;
 
 
 import androidx.annotation.LayoutRes;
@@ -21,24 +21,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 import app.touchlessChef.constants.RecipeConstants;
+import app.touchlessChef.constants.RecipeConstants.INTENT_KEYS;
 import app.touchlessChef.adapter.DatabaseAdapter;
 import app.touchlessChef.adapter.recipe.RecipeAdapter;
 import app.touchlessChef.model.Recipe;
 
 import app.touchlessChef.R;
 
-
+/**
+ * Reference: https://github.com/aza0092/Cooking-Recipe-Android-App/blob/master/app/src/main/java/ui/fragments/CategorizedFragment.java
+ * Adopting Factory Design Pattern. BaseFragment is the factory,
+ *    ChineseFragment and VietnameseFragment are the products
+ * Modified to support Navigation using Drawer
+ */
 public abstract class BaseFragment extends Fragment {
     public interface FragmentListener {
         void onShowRecipe(Recipe recipe, Pair<ImageView, String> pairs);
-        void onDeleteRecipe(long recipeId);
     }
 
     private FragmentListener fragmentListener;
     protected RecyclerView recipeRecyclerView;
     private TextView emptyView;
     protected RecipeAdapter recipeAdapter;
-    protected DatabaseAdapter databaseAdapter;
+    protected final DatabaseAdapter databaseAdapter;
     protected String currentCategory;
     protected List<Recipe> recipes;
 
@@ -55,7 +60,7 @@ public abstract class BaseFragment extends Fragment {
             fragment = new VietnamFragment();
         }
         Bundle args = new Bundle();
-        args.putString("category", category);
+        args.putString(INTENT_KEYS.CATEGORY, category);
         fragment.setArguments(args);
 
         return fragment;
@@ -69,7 +74,7 @@ public abstract class BaseFragment extends Fragment {
 
         Bundle args = getArguments();
         assert args != null;
-        currentCategory = args.getString("category");
+        currentCategory = args.getString(INTENT_KEYS.CATEGORY);
         recipeRecyclerView = rootView.findViewById(R.id.recyclerView);
         emptyView = rootView.findViewById(R.id.empty_view);
         recipeRecyclerView.setHasFixedSize(true);

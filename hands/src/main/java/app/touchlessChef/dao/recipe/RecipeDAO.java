@@ -3,7 +3,6 @@ package app.touchlessChef.dao.recipe;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +11,11 @@ import app.touchlessChef.model.Ingredient;
 import app.touchlessChef.model.Instruction;
 import app.touchlessChef.model.Recipe;
 
+/**
+ * Reference: https://github.com/aza0092/Cooking-Recipe-Android-App/blob/master/app/src/main/java/dao/RecipeDAO.java
+ * Adopting Data Access Object Design Pattern to provide our app an API to talk to the SQLite db
+ * Modified to support Builder Design Pattern
+ */
 public class RecipeDAO {
     private final SQLiteDatabase db;
 
@@ -20,7 +24,6 @@ public class RecipeDAO {
 
     public RecipeDAO(SQLiteDatabase db) {
         this.db = db;
-
         ingredientDAO = new IngredientDAO(db);
         instructionDAO = new InstructionDAO(db);
     }
@@ -31,17 +34,13 @@ public class RecipeDAO {
 
         long newRecipeId = insert(recipe.getName(), recipe.getCategory(), recipe.getDescription(),
                 recipe.getImagePath(), recipe.getTime(), recipe.getMealType());
-        Log.i("DAO", "Inserted new recipe : " + newRecipeId);
-        Log.i("DAO", "New recipe has " + recipe.getInstructions().size() + " instructions.");
         for (Ingredient ingredient : recipe.getIngredients()) {
             ingredient.setRecipeId(newRecipeId);
             ingredientDAO.insert(ingredient);
-            Log.i("DAO", "Inserted " + ingredient);
         }
         for (Instruction instruction : recipe.getInstructions()) {
             instruction.setRecipeId(newRecipeId);
             instructionDAO.insert(instruction);
-            Log.i("DAO", "Inserted " + instruction);
         }
     }
 
@@ -67,46 +66,24 @@ public class RecipeDAO {
                 null, null, null)) {
             if (cursor.moveToFirst()) {
                 do {
-                    Recipe recipe = new Recipe(
-                            cursor.getLong(0),
-                            cursor.getString(1),
-                            cursor.getString(2),
-                            cursor.getString(3),
-                            cursor.getString(4),
-                            cursor.getString(5),
-                            cursor.getString(6));
-                    recipe.setIngredients(ingredientDAO.selectAllByRecipeId(recipe.getId()));
-                    recipe.setInstructions(instructionDAO.selectAllByRecipeId(recipe.getId()));
+                    long recipeID = cursor.getLong(0);
+                    Recipe recipe = new Recipe.RecipeBuilder()
+                            .setID(recipeID)
+                            .setName(cursor.getString(1))
+                            .setCategory(cursor.getString(2))
+                            .setDescription(cursor.getString(3))
+                            .setIngredients(ingredientDAO.selectAllByRecipeId(recipeID))
+                            .setInstructions(instructionDAO.selectAllByRecipeId(recipeID))
+                            .setImagePath(cursor.getString(4))
+                            .setTime(cursor.getString(5))
+                            .setMealType(cursor.getString(6))
+                            .build();
                     recipes.add(recipe);
 
                 } while (cursor.moveToNext());
             }
         }
-
-        Log.i("DAO", "RecipeDAO returning: " + recipes);
         return recipes;
-    }
-
-    public void update(Recipe recipe) {
-        ingredientDAO.deleteAllByRecipeId(recipe.getId());
-        instructionDAO.deleteAllByRecipeId(recipe.getId());
-        for (Ingredient ingredient : recipe.getIngredients()) {
-            ingredient.setRecipeId(recipe.getId());
-            ingredientDAO.insert(ingredient);
-        }
-        for (Instruction instruction : recipe.getInstructions()) {
-            instruction.setRecipeId(recipe.getId());
-            instructionDAO.insert(instruction);
-        }
-
-        ContentValues values = new ContentValues();
-        values.put(Config.KEY_NAME, recipe.getName());
-        values.put(Config.KEY_CATEGORY, recipe.getCategory());
-        values.put(Config.KEY_DESCRIPTION, recipe.getDescription());
-        values.put(Config.KEY_IMAGE_PATH, recipe.getImagePath());
-        values.put(Config.KEY_TIME, recipe.getTime());
-        values.put(Config.KEY_MEAL_TYPE, recipe.getMealType());
-        db.update(Config.TABLE_NAME, values, Config.KEY_ID + "=" + recipe.getId(), null);
     }
 
     public void deleteById(long id) {

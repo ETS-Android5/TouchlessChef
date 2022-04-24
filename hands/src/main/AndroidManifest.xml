@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="app.touchlessChef">
 
-    <uses-sdk android:targetSdkVersion="32" />
+    <uses-sdk android:targetSdkVersion="32"
+        tools:ignore="GradleOverrides" />
     <!-- For loading images from gallery -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- For using the camera -->
     <uses-permission android:name="android.permission.CAMERA" />
@@ -14,32 +16,32 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/touchless_chef_app_icon"
-        android:label="Touchless Chef"
+        android:label="@string/app_name"
         android:roundIcon="@mipmap/touchless_chef_app_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
             android:name=".activity.recipe.CreateRecipeActivity"
             android:exported="false"
-            android:parentActivityName=".activity.home.MainActivity">
+            android:parentActivityName=".activity.MainActivity">
 
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activity.home.MainActivity"/>
+                android:value=".activity.MainActivity"/>
         </activity>
         <activity
             android:name=".activity.recipe.ViewRecipeActivity"
             android:exported="false"
-            android:parentActivityName=".activity.home.MainActivity">
+            android:parentActivityName=".activity.MainActivity">
 
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activity.home.MainActivity"/>
+                android:value=".activity.MainActivity"/>
         </activity>
         <activity
-            android:name=".activity.home.MainActivity"
+            android:name=".activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

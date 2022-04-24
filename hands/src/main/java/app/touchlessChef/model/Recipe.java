@@ -8,58 +8,97 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Reference: https://github.com/aza0092/Cooking-Recipe-Android-App/blob/master/app/src/main/java/models/Recipe.java
+ * Modified using the Builder Design Pattern and add mealType and time attributes
+ */
 public class Recipe implements Parcelable {
-    private long id;
-    private String name;
-    private String category;
-    private String description;
-    private List<Ingredient> ingredients;
-    private List<Instruction> instructions;
-    private String imagePath;
-    private String mealType;
-    private String time;
+    private final long id;
+    private final String name;
+    private final String category;
+    private final String description;
+    private final List<Ingredient> ingredients;
+    private final List<Instruction> instructions;
+    private final String imagePath;
+    private final String mealType;
+    private final String time;
 
-    public Recipe() {
-        ingredients = new ArrayList<>();
-        instructions = new ArrayList<>();
+    private Recipe(RecipeBuilder recipeBuilder) {
+        this.id = recipeBuilder.id;
+        this.name = recipeBuilder.name;
+        this.category = recipeBuilder.category;
+        this.description = recipeBuilder.description;
+        this.ingredients = recipeBuilder.ingredients;
+        this.instructions = recipeBuilder.instructions;
+        this.imagePath = recipeBuilder.imagePath;
+        this.mealType = recipeBuilder.mealType;
+        this.time = recipeBuilder.time;
     }
 
-    public Recipe(String category) {
-        this();
-        this.category = category;
-    }
+    public static class RecipeBuilder {
+        private long id;
+        private String name;
+        private String category;
+        private String description;
+        private List<Ingredient> ingredients;
+        private List<Instruction> instructions;
+        private String imagePath;
+        private String mealType;
+        private String time;
 
-    public Recipe(String name, String category, String description, String imagePath, String time,
-                  String mealType) {
-        this(category);
-        this.name = name;
-        this.description = description;
-        this.imagePath = imagePath;
-        this.time = time;
-        this.mealType = mealType;
-    }
+        public RecipeBuilder() {
+            this.ingredients = new ArrayList<>();
+            this.instructions = new ArrayList<>();
+        }
 
-    public Recipe(long id, String name, String category, String description, String imagePath,
-                  String time, String mealType) {
-        this(name, category, description, imagePath, time, mealType);
-        this.id = id;
-    }
+        public RecipeBuilder setID(long id) {
+            this.id = id;
+            return this;
+        }
 
-    public Recipe(String name, String category, String description,
-                  List<Ingredient> ingredients, List<Instruction> instructions, String imagePath,
-                  String mealType, String time) {
-        this(name, category, description, imagePath, time, mealType);
-        this.ingredients = ingredients;
-        this.instructions = instructions;
-        this.time = time;
-        this.mealType = mealType;
-    }
+        public RecipeBuilder setName(String name) {
+            this.name = name;
+            return this;
+        }
 
-    public Recipe(long id, String name, String category, String description,
-                  List<Ingredient> ingredients, List<Instruction> instructions, String imagePath,
-                  String mealType, String time) {
-        this(name, category, description, ingredients, instructions, imagePath, mealType, time);
-        this.id = id;
+        public RecipeBuilder setCategory(String category) {
+            this.category = category;
+            return this;
+        }
+
+        public RecipeBuilder setDescription(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public RecipeBuilder setIngredients(List<Ingredient> ingredients) {
+            this.ingredients = ingredients;
+            return this;
+        }
+
+        public RecipeBuilder setInstructions(List<Instruction> instructions) {
+            this.instructions = instructions;
+            return this;
+        }
+
+        public RecipeBuilder setImagePath(String imagePath) {
+            this.imagePath = imagePath;
+            return this;
+        }
+
+        public RecipeBuilder setMealType(String mealType) {
+            this.mealType = mealType;
+            return this;
+        }
+
+        public RecipeBuilder setTime(String time) {
+            this.time = time;
+            return this;
+        }
+
+        public Recipe build() {
+            return new Recipe(this);
+        }
     }
 
     protected Recipe(Parcel in) {
@@ -111,16 +150,8 @@ public class Recipe implements Parcelable {
         return id;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getCategory() {
@@ -131,47 +162,24 @@ public class Recipe implements Parcelable {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public List<Ingredient> getIngredients() {
         return ingredients;
-    }
-
-    public void setIngredients(List<Ingredient> ingredients) {
-        this.ingredients = ingredients;
     }
 
     public List<Instruction> getInstructions() {
         return instructions;
     }
 
-    public void setInstructions(List<Instruction> instructions) {
-        this.instructions = instructions;
-    }
-
     public String getImagePath() {
         return imagePath;
     }
 
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
-    }
     public String getMealType() {
         return mealType;
     }
 
-    public void setMealType(String mealType) {
-        this.mealType = mealType;
-    }
-
     public String getTime() {
         return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
     }
 
     @NonNull

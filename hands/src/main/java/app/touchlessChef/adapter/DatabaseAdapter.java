@@ -7,9 +7,13 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.List;
 
 import app.touchlessChef.dao.recipe.RecipeDAO;
-import app.touchlessChef.dao.SQLiteDbCRUD;
+import app.touchlessChef.dao.SQLiteDAO;
 import app.touchlessChef.model.Recipe;
 
+/**
+ * Reference: https://github.com/aza0092/Cooking-Recipe-Android-App/blob/master/app/src/main/java/adapters/DatabaseAdapter.java
+ * Adoption Singleton Design Pattern
+ */
 public class DatabaseAdapter {
     /**
      * The singleton instance.
@@ -19,7 +23,7 @@ public class DatabaseAdapter {
     private static final String DATABASE_NAME = "recipes";
     private static final int DATABASE_VERSION = 1;
 
-    private final SQLiteDbCRUD dbCRUD;
+    private final SQLiteDAO dbCRUD;
     private RecipeDAO recipeDAO;
 
     /**
@@ -38,7 +42,7 @@ public class DatabaseAdapter {
     }
 
     private DatabaseAdapter(Context context) {
-        dbCRUD = new SQLiteDbCRUD(context, DATABASE_NAME, DATABASE_VERSION);
+        dbCRUD = new SQLiteDAO(context, DATABASE_NAME, DATABASE_VERSION);
     }
 
     private DatabaseAdapter open() {
@@ -49,10 +53,6 @@ public class DatabaseAdapter {
 
     public void addNewRecipe(Recipe recipe) {
         recipeDAO.insert(recipe);
-    }
-
-    public void updateRecipe(Recipe recipe) {
-        recipeDAO.update(recipe);
     }
 
     public void deleteRecipe(long recipeId) {

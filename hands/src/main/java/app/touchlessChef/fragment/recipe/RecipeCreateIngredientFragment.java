@@ -21,7 +21,6 @@ import java.util.List;
 import app.touchlessChef.R;
 import app.touchlessChef.adapter.recipe.IngredientAdapter;
 import app.touchlessChef.model.Ingredient;
-import app.touchlessChef.model.Recipe;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -29,7 +28,7 @@ import app.touchlessChef.model.Recipe;
  * create an instance of this fragment.
  */
 public class RecipeCreateIngredientFragment extends NavigableFragment {
-    private IngredientListener myListener;
+    private IngredientListener mListener;
     private List<Ingredient> ingredientList;
     private IngredientAdapter ingredientAdapter;
 
@@ -39,15 +38,8 @@ public class RecipeCreateIngredientFragment extends NavigableFragment {
 
     public RecipeCreateIngredientFragment() {}
 
-    public static RecipeCreateIngredientFragment newInstance(Recipe recipe) {
-        RecipeCreateIngredientFragment fragment = new RecipeCreateIngredientFragment();
-
-        if (recipe.getIngredients() != null) {
-            Bundle args = new Bundle();
-            args.putParcelableArrayList("ingredients", (ArrayList<Ingredient>) recipe.getIngredients());
-            fragment.setArguments(args);
-        }
-        return fragment;
+    public static RecipeCreateIngredientFragment newInstance() {
+        return new RecipeCreateIngredientFragment();
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -55,12 +47,7 @@ public class RecipeCreateIngredientFragment extends NavigableFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_recipe_create_ingredient, container, false);
-
-        Bundle args = getArguments();
-        if (args != null)
-            ingredientList = args.getParcelableArrayList("ingredients");
-        if (ingredientList == null)
-            ingredientList = new ArrayList<>();
+        ingredientList = new ArrayList<>();
 
         ingredientRecyclerView = view.findViewById(R.id.recyclerView);
         emptyView = view.findViewById(R.id.empty_view);
@@ -106,7 +93,7 @@ public class RecipeCreateIngredientFragment extends NavigableFragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
-            myListener = (IngredientListener) context;
+            mListener = (IngredientListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context + " must implement IngredientListener");
         }
@@ -115,13 +102,13 @@ public class RecipeCreateIngredientFragment extends NavigableFragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        myListener = null;
+        mListener = null;
     }
 
     @Override
     public void onNext() {
-        if (myListener != null)
-            myListener.navigateToInstructionsFragment(ingredientList);
+        if (mListener != null)
+            mListener.navigateToInstructionsFragment(ingredientList);
     }
 
     public interface IngredientListener {

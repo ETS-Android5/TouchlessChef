@@ -27,7 +27,7 @@
                 android:focusable="false"
                 android:scaleType="centerCrop"
                 android:transitionName="image_shared"
-                tools:src="@drawable/vn_botloc"
+                tools:src="@drawable/vn_bot_loc"
                 android:contentDescription="@string/recipe_card_image" />
 
             <TextView
@@ -40,8 +40,7 @@
                 android:padding="16dp"
                 android:textColor="#4c4c4c"
                 android:textSize="16sp"
-                android:transitionName="name_shared"
-                tools:text="@string/recipe_no1" />
+                android:transitionName="name_shared"/>
 
             <ImageView
                 android:id="@+id/clock_imageView"

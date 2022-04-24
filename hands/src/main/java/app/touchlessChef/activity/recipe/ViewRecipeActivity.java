@@ -30,25 +30,29 @@ import java.io.File;
 import java.util.Objects;
 
 import app.touchlessChef.activity.HandsResultGlRenderer;
-import app.touchlessChef.constants.RecipeConstants;
 import app.touchlessChef.fragment.recipe.RecipeViewFragment;
 import app.touchlessChef.model.Recipe;
 import app.touchlessChef.R;
-import app.touchlessChef.activity.MenuActivity;
-import app.touchlessChef.constants.RecipeEditConstants;
+import app.touchlessChef.activity.BaseActivity;
 import android.widget.ScrollView;
+import app.touchlessChef.constants.RecipeConstants.INTENT_KEYS;
+import app.touchlessChef.constants.RecipeConstants.REQUEST_CODES;
+import app.touchlessChef.constants.RecipeConstants.DEFAULT_RECIPE;
 
-public class ViewRecipeActivity extends MenuActivity {
+/**
+ * Reference: https://github.com/aza0092/Cooking-Recipe-Android-App/blob/master/app/src/main/java/ui/ViewRecipeActivity.java
+ * Modified to add Hands Tracking
+ */
+public class ViewRecipeActivity extends BaseActivity {
+    private static final String TAG = ViewRecipeActivity.class.getSimpleName();
     private Recipe recipe;
-
     private ImageView mRecipeImage;
     private TextView mRecipeDescription;
     private TextView mRecipeTime;
     private TextView mRecipeType;
-    private CollapsingToolbarLayout mCollapsingToolbarLayout;
+    private ScrollView mScrollView;
 
     // HandsTracking
-    private static final String TAG = "MainActivity";
     private Hands hands;
     private static final boolean RUN_ON_GPU = true;
     private enum InputSource {
@@ -60,7 +64,6 @@ public class ViewRecipeActivity extends MenuActivity {
     private CameraInput cameraInput;
     public static SolutionGlSurfaceView<HandsResult> glSurfaceView;
     private static boolean stopTracking = false;
-    ScrollView nestedScrollView;
     int curY = 0;
 
     @Override
@@ -71,39 +74,17 @@ public class ViewRecipeActivity extends MenuActivity {
         Window w = getWindow();
         w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-
-        recipe = getIntent().getParcelableExtra("recipe");
         findViewsById();
 
-        setSupportActionBar(mToolbar);
-        Objects.requireNonNull(getSupportActionBar()).setTitle(recipe.getName());
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-
-        String imgPath = recipe.getImagePath();
-        if (!imgPath.equals("default")) {
-            mRecipeImage.setImageURI(Uri.fromFile(new File(imgPath)));
-        } else {
-            @SuppressLint("UseCompatLoadingForDrawables")
-            Drawable mDrawable = mRecipeImage.getResources().getDrawable(RecipeConstants.DEFAULT_IMAGE);
-            mRecipeImage.setImageDrawable(mDrawable);
-        }
-        mRecipeDescription.setText(recipe.getDescription());
-        mRecipeTime.setText(recipe.getTime());
-        mRecipeType.setText(recipe.getMealType());
-
-        Typeface font = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Medium.ttf");
-        mCollapsingToolbarLayout.setCollapsedTitleTypeface(font);
-        mCollapsingToolbarLayout.setExpandedTitleTypeface(font);
-
+        // Display Recipe
+        recipe = getIntent().getParcelableExtra(INTENT_KEYS.RECIPE);
+        displayRecipe(recipe);
         getSupportFragmentManager().beginTransaction().replace(R.id.recipe_view_holder,
                 RecipeViewFragment.newInstance(recipe.getIngredients(),
                         recipe.getInstructions())).commit();
 
+        // Set up Hands Tracking
         setupLiveDemoUiComponents();
-        nestedScrollView = findViewById(R.id.nestedScrollView);
     }
 
     @Override
@@ -116,16 +97,10 @@ public class ViewRecipeActivity extends MenuActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.edit_recipe:
-                Intent intent = new Intent();
-                intent.putExtra("recipe", recipe);
-                setResult(RecipeEditConstants.RECIPE_SHOULD_BE_EDITED, intent);
-                finish();
-                break;
             case R.id.delete_recipe:
                 Intent data = new Intent();
-                data.putExtra("recipeId", recipe.getId());
-                setResult(RecipeEditConstants.RECIPE_SHOULD_BE_DELETED, data);
+                data.putExtra(INTENT_KEYS.RECIPE_ID, recipe.getId());
+                setResult(REQUEST_CODES.RECIPE_SHOULD_BE_DELETED, data);
                 finish();
                 break;
             case android.R.id.home:
@@ -137,13 +112,38 @@ public class ViewRecipeActivity extends MenuActivity {
     }
 
     private void findViewsById() {
+        CollapsingToolbarLayout mCollapsingToolbarLayout = findViewById(R.id.collapsing_toolbar);
         mRecipeImage = findViewById(R.id.recipe_image);
         mRecipeDescription = findViewById(R.id.recipe_description);
         mRecipeTime = findViewById(R.id.time);
         mRecipeType = findViewById(R.id.mealType);
         mToolbar = findViewById(R.id.toolbar);
-        mCollapsingToolbarLayout = findViewById(R.id.collapsing_toolbar);
+        mScrollView = findViewById(R.id.scrollView);
+
+        // Toolbar attributes
+        setSupportActionBar(mToolbar);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Typeface font = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Medium.ttf");
+        mCollapsingToolbarLayout.setCollapsedTitleTypeface(font);
+        mCollapsingToolbarLayout.setExpandedTitleTypeface(font);
     }
+
+    private void displayRecipe(Recipe recipe) {
+        String imgPath = recipe.getImagePath();
+
+        if (!imgPath.equals(DEFAULT_RECIPE.DEFAULT)) {
+            mRecipeImage.setImageURI(Uri.fromFile(new File(imgPath)));
+        } else {
+            @SuppressLint("UseCompatLoadingForDrawables")
+            Drawable mDrawable = mRecipeImage.getResources().getDrawable(DEFAULT_RECIPE.DEFAULT_IMAGE);
+            mRecipeImage.setImageDrawable(mDrawable);
+        }
+        mRecipeDescription.setText(recipe.getDescription());
+        mRecipeTime.setText(recipe.getTime());
+        mRecipeType.setText(recipe.getMealType());
+    }
+
     /** Sets up the UI components for the live demo with camera input. */
     private void setupLiveDemoUiComponents() {
         Button startCameraButton = findViewById(R.id.button_start_camera);
@@ -198,7 +198,7 @@ public class ViewRecipeActivity extends MenuActivity {
         // For video input source, videoInput.start() will be called when the video uri is available.
         glSurfaceView.post(this::startCamera);
 
-//     Updates the preview layout.
+        // Updates the preview layout.
         RelativeLayout relativelayout = findViewById(R.id.preview_display_layout);
         relativelayout.removeAllViewsInLayout();
 
@@ -243,16 +243,16 @@ public class ViewRecipeActivity extends MenuActivity {
                         .get(HandLandmark.INDEX_FINGER_DIP);
 
         if(index_finger_dipLandmark.getY() -index_finger_tipLandmark.getY()>0){
-            nestedScrollView.post(() -> {
+            mScrollView.post(() -> {
                 curY-=200;
-                nestedScrollView.smoothScrollTo(0, curY);
+                mScrollView.smoothScrollTo(0, curY);
             });
             Log.i(TAG, "UP");
         }
         else{
-            nestedScrollView.post(() -> {
+            mScrollView.post(() -> {
                 curY+=200;
-                nestedScrollView.smoothScrollTo(0, curY);
+                mScrollView.smoothScrollTo(0, curY);
             });
             Log.i(TAG,"DOWN"
             );

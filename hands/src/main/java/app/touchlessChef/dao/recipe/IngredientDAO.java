@@ -3,13 +3,16 @@ package app.touchlessChef.dao.recipe;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import app.touchlessChef.model.Ingredient;
 
+/**
+ * Reference: https://github.com/aza0092/Cooking-Recipe-Android-App/blob/master/app/src/main/java/dao/IngredientDAO.java
+ * Adopting Data Access Object Design Pattern to provide our app an API to talk to the SQLite db
+ */
 public class IngredientDAO {
     private final SQLiteDatabase db;
 
@@ -41,7 +44,6 @@ public class IngredientDAO {
                 } while (cursor.moveToNext());
             }
         }
-        Log.i("DAO", "IngredientDAO returning: " + ingredients + " for recipe ID: " + recipeId);
         return ingredients;
     }
 

@@ -17,9 +17,14 @@ import java.io.File;
 import java.util.List;
 
 import app.touchlessChef.R;
-import app.touchlessChef.constants.RecipeConstants;
 import app.touchlessChef.model.Recipe;
+import app.touchlessChef.constants.RecipeConstants.DEFAULT_RECIPE;
 
+/**
+ * Reference: https://github.com/aza0092/Cooking-Recipe-Android-App/blob/master/app/src/main/java/adapters/RecipeAdapter.java
+ * Adapter for RecyclerView
+ * Modified to only support display recipe
+ */
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder>{
     public interface RecipeListener {
         void onShowRecipe(Recipe recipe, Pair<ImageView, String> pairs);
@@ -56,9 +61,9 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     }
 
     public class RecipeViewHolder extends RecyclerView.ViewHolder {
-        TextView titleLabel;
-        ImageView thumbnail;
-        TextView time;
+        final TextView titleLabel;
+        final ImageView thumbnail;
+        final TextView time;
 
         public RecipeViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -78,11 +83,11 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             titleLabel.setText(recipe.getName());
             time.setText(recipe.getTime());
             String imgPath = recipe.getImagePath();
-            if (!imgPath.equals("default")) {
+            if (!imgPath.equals(DEFAULT_RECIPE.DEFAULT)) {
                 thumbnail.setImageURI(Uri.fromFile(new File(imgPath)));
             } else {
                 @SuppressLint("UseCompatLoadingForDrawables") Drawable mDrawable =
-                        thumbnail.getResources().getDrawable(RecipeConstants.DEFAULT_IMAGE);
+                        thumbnail.getResources().getDrawable(DEFAULT_RECIPE.DEFAULT_IMAGE);
                 thumbnail.setImageDrawable(mDrawable);
             }
         }

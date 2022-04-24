@@ -41,7 +41,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autofillHints="description"
-            android:hint="@string/a_short_description_about_this_recipe"
+            android:hint="@string/recipe_description"
             android:inputType="textMultiLine"
             android:minHeight="48dp"
             tools:ignore="TextContrastCheck" />

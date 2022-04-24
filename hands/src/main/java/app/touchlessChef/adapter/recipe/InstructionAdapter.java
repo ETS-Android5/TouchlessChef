@@ -14,28 +14,24 @@ import java.util.List;
 import app.touchlessChef.R;
 import app.touchlessChef.model.Instruction;
 
+/**
+ * Reference: https://github.com/aza0092/Cooking-Recipe-Android-App/blob/master/app/src/main/java/adapters/DirectionAdapter.java
+ * Adapter for RecyclerView
+ * Modified to only support delete feature
+ */
 public class InstructionAdapter extends RecyclerView.Adapter<InstructionAdapter.InstructionViewHolder>{
     private final List<Instruction> instructionList;
-    private final boolean isEditable = true;
     private InstructionListener instructionListener;
 
     public InstructionAdapter(List<Instruction> instructionList) {
         this.instructionList = instructionList;
     }
 
-
-    @Override
-    public int getItemViewType(int position) {
-        return isEditable ? 0 : 1;
-    }
-
     @NonNull
     @Override
     public InstructionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(viewType == 0 ? R.layout.adapter_recipe_instruction_item_row_editable
-                                : R.layout.adapter_recipe_instruction_item_row_non_editable,
-                        parent, false);
+                .inflate(R.layout.adapter_recipe_instruction_item, parent, false);
         return new InstructionViewHolder(v);
     }
 
@@ -51,21 +47,18 @@ public class InstructionAdapter extends RecyclerView.Adapter<InstructionAdapter.
     }
 
     public class InstructionViewHolder extends RecyclerView.ViewHolder {
-
-        TextView instructionText;
-        ImageView wasteBin;
+        final TextView instructionText;
+        final ImageView wasteBin;
 
         public InstructionViewHolder(View itemView) {
             super(itemView);
 
             instructionText = itemView.findViewById(R.id.instructionText);
-            if (isEditable) {
-                wasteBin = itemView.findViewById(R.id.wasteBin);
-                wasteBin.setOnClickListener(v -> {
-                    if (instructionListener != null)
-                        instructionListener.onDeleteInstruction(getAdapterPosition());
-                });
-            }
+            wasteBin = itemView.findViewById(R.id.wasteBin);
+            wasteBin.setOnClickListener(v -> {
+                if (instructionListener != null)
+                    instructionListener.onDeleteInstruction(getAdapterPosition());
+            });
         }
 
         public void bind(Instruction instruction) {

@@ -25,7 +25,7 @@
             app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Title"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:statusBarScrim="@android:color/transparent"
-            android:background="@drawable/vn_botloc"
+            android:background="@drawable/vn_bot_loc"
             app:expandedTitleTextColor="@color/colorPrimaryDark">
 
             <ImageView
@@ -35,7 +35,7 @@
                 android:contentDescription="@string/recipe_view_image"
                 android:fitsSystemWindows="true"
                 android:scaleType="centerCrop"
-                android:src="@drawable/vn_botloc"
+                android:src="@drawable/vn_bot_loc"
                 android:transitionName="image_shared"
                 app:layout_collapseMode="parallax"
                 tools:ignore="ImageContrastCheck" />
@@ -87,7 +87,7 @@
         android:layout_height="match_parent"
         android:fillViewport="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:id="@+id/nestedScrollView"
+        android:id="@+id/scrollView"
         android:layout_marginTop="50dp"
         android:layout_marginBottom="230dp"
         >

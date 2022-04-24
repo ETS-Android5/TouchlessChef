@@ -19,7 +19,6 @@ import android.widget.Toast;
 import java.io.File;
 
 import app.touchlessChef.R;
-import app.touchlessChef.model.Recipe;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -38,42 +37,21 @@ public class RecipeCreateImageFragment extends NavigableFragment {
     private Spinner recipeTime;
     private Spinner recipeType;
 
-    public static RecipeCreateImageFragment newInstance(Recipe recipe) {
-        RecipeCreateImageFragment fragment = new RecipeCreateImageFragment();
-
-        Bundle args = new Bundle();
-        if (recipe.getDescription() != null) {
-            args.putString("imagePath", recipe.getImagePath());
-            args.putString("description", recipe.getDescription());
-            args.putString("name", recipe.getName());
-            args.putString("time", recipe.getTime());
-            args.putString("mealType", recipe.getMealType());
-            fragment.setArguments(args);
-        }
-        return fragment;
+    public static RecipeCreateImageFragment newInstance() {
+        return new RecipeCreateImageFragment();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_recipe_create_image, container, false);
+
         recipeImage = view.findViewById(R.id.recipe_image);
         selectImageBtn = view.findViewById(R.id.choose_image);
         recipeDescription = view.findViewById(R.id.recipe_description);
         recipeName = view.findViewById(R.id.recipe_name);
         recipeTime = view.findViewById(R.id.time_spinner);
         recipeType = view.findViewById(R.id.mealType);
-
-
-        Bundle args = getArguments();
-        if (args != null) {
-            String imagePath = args.getString("imagePath");
-            String description = args.getString("description");
-            String name = args.getString("name");
-            onImageSelected(imagePath);
-            recipeDescription.setText(description);
-            recipeName.setText(name);
-        }
 
         selectImageBtn.setOnClickListener(v -> {
             if (mListener != null)
@@ -142,6 +120,7 @@ public class RecipeCreateImageFragment extends NavigableFragment {
             selectImageBtn.setText(R.string.recipe_update_image);
         }
     }
+
     public interface ImageListener {
         void onSelectImage();
         void navigateToIngredientsFragment(String name, String description, String time, String mealType);

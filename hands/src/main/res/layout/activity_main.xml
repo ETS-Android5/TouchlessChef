@@ -11,7 +11,7 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".activity.home.MainActivity">
+        tools:context=".activity.MainActivity">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appbar"
@@ -49,7 +49,7 @@
                         android:contentDescription="@string/first_view_fragment"
                         android:fitsSystemWindows="true"
                         android:scaleType="centerCrop"
-                        android:src="@drawable/vn_botloc"
+                        android:src="@drawable/vn_bot_loc"
                         tools:ignore="ImageContrastCheck" />
 
                     <ImageView

@@ -5,9 +5,12 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
+/**
+ * Reference: https://github.com/aza0092/Cooking-Recipe-Android-App/blob/master/app/src/main/java/models/Direction.java
+ */
 public class Instruction implements Parcelable {
     private long id;
-    private String content;
+    private final String content;
     private long recipeId;
 
     public Instruction(String content) {
@@ -50,20 +53,8 @@ public class Instruction implements Parcelable {
         }
     };
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public String getContent() {
         return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
     }
 
     public long getRecipeId() {

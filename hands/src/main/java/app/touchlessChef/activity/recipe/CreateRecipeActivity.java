@@ -19,7 +19,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -37,17 +36,20 @@ import app.touchlessChef.fragment.recipe.NavigableFragment;
 import app.touchlessChef.fragment.recipe.RecipeCreateImageFragment;
 import app.touchlessChef.fragment.recipe.RecipeCreateIngredientFragment;
 import app.touchlessChef.fragment.recipe.RecipeCreateInstructionFragment;
-import app.touchlessChef.constants.RecipeEditConstants;
+import app.touchlessChef.constants.RecipeConstants.INTENT_KEYS;
+import app.touchlessChef.constants.RecipeConstants.REQUEST_CODES;
 
+/**
+ * Reference: https://github.com/aza0092/Cooking-Recipe-Android-App/blob/master/app/src/main/java/ui/CreateRecipeActivity.java
+ * Modified using the Builder Design Pattern
+ */
 public class CreateRecipeActivity extends AppCompatActivity implements
         RecipeCreateImageFragment.ImageListener, RecipeCreateInstructionFragment.InstructionListener,
         RecipeCreateIngredientFragment.IngredientListener{
+    private static final String NEXT = "NEXT";
+    private static final String FINISH = "FINISH";
 
-    private static final int REQUEST_OPEN_GALLERY = 10;
-    private static final int REQUEST_TO_ACCESS_GALLERY = 11;
-
-    private Recipe currentRecipe;
-    private boolean isEditing;
+    private Recipe.RecipeBuilder recipeBuilder;
     private DatabaseAdapter databaseAdapter;
     private final Activity mActivity = this;
 
@@ -61,13 +63,8 @@ public class CreateRecipeActivity extends AppCompatActivity implements
         databaseAdapter = DatabaseAdapter.getInstance(this);
 
         Intent intent = getIntent();
-        isEditing = intent.getBooleanExtra("isEditing", false);
-        if (isEditing)
-            currentRecipe = intent.getParcelableExtra("recipe");
-        else {
-            String currentCategory = intent.getStringExtra("category");
-            currentRecipe = new Recipe(currentCategory);
-        }
+        String category = intent.getStringExtra(INTENT_KEYS.CATEGORY);
+        recipeBuilder = new Recipe.RecipeBuilder().setCategory(category);
 
         initializeUI();
         displayFragment(0);
@@ -95,14 +92,13 @@ public class CreateRecipeActivity extends AppCompatActivity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_OPEN_GALLERY) {
+        if (requestCode == REQUEST_CODES.REQUEST_OPEN_GALLERY) {
             if (resultCode == RESULT_OK) {
                 Uri imageData = data.getData();
-                String imageSrc = Files.getRealPathFromURI(this, imageData);
+                String imagePath = Files.getRealPathFromURI(this, imageData);
                 ((RecipeCreateImageFragment) Objects.requireNonNull(getSupportFragmentManager()
-                        .findFragmentById(R.id.frame_container))).onImageSelected(imageSrc);
-
-                currentRecipe.setImagePath(imageSrc);
+                        .findFragmentById(R.id.frame_container))).onImageSelected(imagePath);
+                recipeBuilder.setImagePath(imagePath);
             }
         }
     }
@@ -111,7 +107,7 @@ public class CreateRecipeActivity extends AppCompatActivity implements
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_TO_ACCESS_GALLERY) {
+        if (requestCode == REQUEST_CODES.REQUEST_TO_ACCESS_GALLERY) {
             if (grantResults.length > 0
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                 openGallery();
@@ -130,19 +126,19 @@ public class CreateRecipeActivity extends AppCompatActivity implements
 
         switch (position) {
             case 0:
-                fragment = RecipeCreateImageFragment.newInstance(currentRecipe);
+                fragment = RecipeCreateImageFragment.newInstance();
                 ft.setCustomAnimations(R.animator.left_slide_in, R.animator.right_slide_out);
-                nextButtonText = "NEXT";
+                nextButtonText = NEXT;
                 break;
             case 1:
-                fragment = RecipeCreateIngredientFragment.newInstance(currentRecipe);
+                fragment = RecipeCreateIngredientFragment.newInstance();
                 ft.setCustomAnimations(R.animator.right_slide_in, R.animator.left_slide_out);
-                nextButtonText = "NEXT";
+                nextButtonText = NEXT;
                 break;
             case 2:
-                fragment = RecipeCreateInstructionFragment.newInstance(currentRecipe);
+                fragment = RecipeCreateInstructionFragment.newInstance();
                 ft.setCustomAnimations(R.animator.right_slide_in, R.animator.left_slide_out);
-                nextButtonText = "Finish";
+                nextButtonText = FINISH;
                 break;
         }
 
@@ -168,17 +164,14 @@ public class CreateRecipeActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void navigateToIngredientsFragment(String name, String description, String time, String MealType) {
-        currentRecipe.setName(name);
-        currentRecipe.setDescription(description);
-        currentRecipe.setTime(time);
-        currentRecipe.setMealType(MealType);
+    public void navigateToIngredientsFragment(String name, String description, String time, String mealType) {
+        recipeBuilder.setName(name).setDescription(description).setTime(time).setMealType(mealType);
         displayFragment(1);
     }
 
     @Override
     public void navigateToInstructionsFragment(List<Ingredient> ingredients) {
-        currentRecipe.setIngredients(ingredients);
+        recipeBuilder.setIngredients(ingredients);
         displayFragment(2);
     }
 
@@ -189,29 +182,24 @@ public class CreateRecipeActivity extends AppCompatActivity implements
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    REQUEST_TO_ACCESS_GALLERY);
+                    REQUEST_CODES.REQUEST_TO_ACCESS_GALLERY);
         } else {
             openGallery();
         }
     }
 
     @Override
-    public void onStepsFinished(List<Instruction> directions) {
-        currentRecipe.setInstructions(directions);
-        if (isEditing)
-            databaseAdapter.updateRecipe(currentRecipe);
-        else
-            databaseAdapter.addNewRecipe(currentRecipe);
-
-        Log.i("CreateRecipeActivity", "Final recipe: " + currentRecipe);
-        setResult(isEditing ? RecipeEditConstants.RECIPE_EDITED : RecipeEditConstants.RECIPE_ADDED);
+    public void onStepsFinished(List<Instruction> instructions) {
+        recipeBuilder.setInstructions(instructions);
+        databaseAdapter.addNewRecipe(recipeBuilder.build());
+        setResult(REQUEST_CODES.RECIPE_ADDED);
         finish();
     }
 
     private void openGallery() {
         Intent gallery = new Intent(Intent.ACTION_GET_CONTENT);
         gallery.setType("image/*");
-        mActivity.startActivityForResult(gallery, REQUEST_OPEN_GALLERY);
+        mActivity.startActivityForResult(gallery, REQUEST_CODES.REQUEST_OPEN_GALLERY);
     }
 
     public static class Files {

@@ -8,15 +8,44 @@ import app.touchlessChef.model.Ingredient;
 import app.touchlessChef.model.Instruction;
 import app.touchlessChef.model.Recipe;
 
+
 public class RecipeConstants {
+    // Cuisine type
     public static final String VIETNAMESE = "Vietnamese";
     public static final String CHINESE = "Chinese";
 
-    public static final Recipe VIETNAM_DEFAULT_RECIPE = loadVNDefault();
-    public static final int DEFAULT_IMAGE = R.drawable.vn_chicken_rice;
+    public static class REQUEST_CODES {
+        public static final int REQUEST_OPEN_GALLERY = 100;
+        public static final int REQUEST_TO_ACCESS_GALLERY = 200;
+        public static final int REQUEST_ADD_RECIPE = 300;
+        public static final int REQUEST_VIEW_RECIPE = 400;
+        public static final int RECIPE_ADDED = 500;
+        public static final int RECIPE_SHOULD_BE_DELETED = 800;
+    }
+    public static class INTENT_KEYS {
+        public static final String RECIPE = "recipe";
+        public static final String RECIPE_ID = "recipeID";
+        public static final String CATEGORY = "category";
+    }
 
-    private static Recipe loadVNDefault() {
+    public static class FRAGMENT_ARGS {
+        public static final String INGREDIENTS = "ingredients";
+        public static final String INSTRUCTIONS = "instructions";
+    }
+
+    public static class DEFAULT_RECIPE {
+        public static final String DEFAULT = "default";
+        public static final int DEFAULT_IMAGE = R.drawable.vn_chicken_rice;
+        public static final Recipe VIETNAM_DEFAULT_RECIPE = loadVNDefaultRecipe();
+    }
+
+    private static Recipe loadVNDefaultRecipe() {
         // Reference: https://tasty.co/recipe/hainanese-chicken-rice
+        String name = "Vietnamese Chicken Rice";
+        String description = "For 6 people";
+        String mealType = "Dinner";
+        String time = "1 hr";
+
         List<Ingredient> ingredients = new ArrayList<>();
         ingredients.add(new Ingredient("3 lb whole chicken(1.3 kg), giblets removed"));
         ingredients.add(new Ingredient("¼ cup kosher salt(60 g), divided"));
@@ -43,9 +72,10 @@ public class RecipeConstants {
         instructions.add(new Instruction("15. Serve the sliced chicken with the rice, dipping sauces, sliced cucumbers, and fresh cilantro."));
         instructions.add(new Instruction("16. Enjoy!"));
 
-
-
-        return new Recipe("Vietnamese Chicken Rice", "Vietnamese",
-                "For 6 people", ingredients, instructions, "default",
-                "Main-course", "1 hr");
-    }}
+        Recipe.RecipeBuilder recipeBuilder = new Recipe.RecipeBuilder().setName(name)
+                .setCategory(RecipeConstants.VIETNAMESE).setDescription(description)
+                .setIngredients(ingredients).setInstructions(instructions)
+                .setImagePath(DEFAULT_RECIPE.DEFAULT).setMealType(mealType).setTime(time);
+        return recipeBuilder.build();
+    }
+}

@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.home.ChineseFragment">
+    tools:context=".fragment.cuisine.VietnamFragment">
 
-    <include layout="@layout/fragment_layout_include"/>
+    <include layout="@layout/fragment_cuisine_include"/>
+
 </FrameLayout>

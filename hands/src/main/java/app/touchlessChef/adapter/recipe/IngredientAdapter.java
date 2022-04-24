@@ -14,27 +14,24 @@ import java.util.List;
 import app.touchlessChef.model.Ingredient;
 import app.touchlessChef.R;
 
+/**
+ * Reference: https://github.com/aza0092/Cooking-Recipe-Android-App/blob/master/app/src/main/java/adapters/IngredientAdapter.java
+ * Adapter for RecyclerView
+ * Modified to only support delete feature
+ */
 public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.IngredientViewHolder>{
     private final List<Ingredient> ingredientList;
-    private final boolean isEditable = true;
     private IngredientListener ingredientListener;
 
     public IngredientAdapter(List<Ingredient> ingredientList) {
         this.ingredientList = ingredientList;
     }
 
-    @Override
-    public int getItemViewType(int position) {
-        return isEditable ? 0 : 1;
-    }
-
     @NonNull
     @Override
     public IngredientViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(viewType == 0 ? R.layout.adapter_recipe_ingredient_item_row_editable
-                                : R.layout.adapter_recipe_ingredient_item_row_non_editable,
-                        parent, false);
+                .inflate(R.layout.adapter_recipe_ingredient_item, parent, false);
         return new IngredientViewHolder(v);
     }
 
@@ -50,21 +47,18 @@ public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.In
     }
 
     public class IngredientViewHolder extends RecyclerView.ViewHolder {
-
-        TextView ingredientText;
-        ImageView wasteBin;
+        final TextView ingredientText;
+        final ImageView wasteBin;
 
         public IngredientViewHolder(View itemView) {
             super(itemView);
 
             ingredientText = itemView.findViewById(R.id.ingredientText);
-            if (isEditable) {
-                wasteBin = itemView.findViewById(R.id.wasteBin);
-                wasteBin.setOnClickListener(v -> {
-                    if (ingredientListener != null)
-                        ingredientListener.onDeleteIngredient(getAdapterPosition());
-                });
-            }
+            wasteBin = itemView.findViewById(R.id.wasteBin);
+            wasteBin.setOnClickListener(v -> {
+                if (ingredientListener != null)
+                    ingredientListener.onDeleteIngredient(getAdapterPosition());
+            });
         }
 
         public void bind(Ingredient ingredient) {
